@@ -3,6 +3,8 @@ import { UsuarioService } from './service/usuario.service';
 import { Usuario } from './models/usuario';
 import { CommonModule } from '@angular/common';
 
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-usuario',
   imports: [CommonModule],
@@ -32,7 +34,12 @@ export class UsuarioComponent {
   }
 
   clickBotonEditar(usuario: Usuario) {    
-    console.log(usuario);
+    console.log(usuario);   
+    Swal.fire("Encabezado de la ventana modal", "Contenido", "error");
+  }
+
+  nuevoUsuario() {
+    Swal.fire("Titulo del modal", "Guardando un usuario", "success");
   }
 
 
