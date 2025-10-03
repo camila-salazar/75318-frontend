@@ -6,9 +6,9 @@
           <i class="fa fa-users"></i>
           &nbsp;Lista de usuarios
         </h3>
-        <button class="btn btn-outline-primary"
-          data-bs-toggle="modal" data-bs-target="#nuevoUsuarioModal">
-          <i class="fa fa-plus"></i> Nuevo usuario
+        <button class="btn btn-outline-primary" (click)="abrirNuevoUsuario()">
+          <i class="fa fa-plus"></i>
+          Nuevo usuario
         </button>
       </div>
     </div>
@@ -25,21 +25,25 @@
               <th>Acción</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let usuario of usuarioList">
+          <tbody *ngIf="usuarios && usuarios.length > 0">
+            <tr *ngFor="let usuario of usuarios">
               <td>{{ usuario.id }}</td>
               <td>{{ usuario.username }}</td>
               <td>{{ usuario.rol }}</td>
-              <td>{{ usuario.fechaCreacion | date:'yyyy-MM-dd HH:mm' }}</td>
-            <td>
+              <td>{{ usuario.fechaCreacion | date: 'yyyy-MM-dd HH:mm' }}</td>
+              <td>
                 <i class="fa" [ngClass]="usuario.activo ? 'fa-check text-success' : 'fa-times text-danger'"></i>
-            </td>
-            <td>
-                <button type="button" 
-                class="btn btn btn-outline-primary" 
-                title="Editar usuario"
-                (click)="clickBotonEditar(usuario)"><i class="fa fa-edit"></i></button>
-            </td>
+              </td>
+              <td>
+                <button type="button" class="btn btn btn-outline-primary" title="Editar usuario" (click)="abrirEditarUsuario(usuario)">
+                  <i class="fa fa-edit"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="usuarios && usuarios.length === 0">
+            <tr>
+              <td colspan="6" class="text-center">No hay usuarios disponibles.</td>
             </tr>
           </tbody>
         </table>
@@ -49,19 +53,21 @@
 </div>
 
 <!-- Modal para nuevo usuario -->
-<div class="modal fade" id="nuevoUsuarioModal" tabindex="-1" aria-labelledby="nuevoUsuarioModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
+<div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="nuevoUsuarioModalLabel">Modal title</h1>
+        <h1 class="modal-title fs-5" id="modalCrearUsuarioLabel">
+          {{titleModal}}
+        </h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        ...
+        Datos del formulario
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" (click)="nuevoUsuario()">Guardar</button>
+        <button type="button" class="btn btn-primary" (click)="guardarUsuario()">{{titleBoton}}</button>
       </div>
     </div>
   </div>
