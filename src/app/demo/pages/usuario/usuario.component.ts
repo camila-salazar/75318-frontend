@@ -9,7 +9,6 @@ import Modal from 'bootstrap/js/dist/modal';
 
 import {
   FormBuilder,
-  FormControl,
   FormGroup,
   Validators,
   AbstractControl,
@@ -34,12 +33,7 @@ export class UsuarioComponent {
   titleBoton: string = '';
   usuarioSelected: Usuario;
 
-  form: FormGroup = new FormGroup({
-    username: new FormControl(''),
-    pass: new FormControl(''),
-    rol: new FormControl(''),
-    activo: new FormControl('')
-  });
+  form: FormGroup;
 
   constructor(
     private readonly usuarioService: UsuarioService,
@@ -52,7 +46,7 @@ export class UsuarioComponent {
   inicializarFormulario() {
     this.form = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(10)]],
-      pass: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(12)], [this.passwordAsyncValidator]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(16)], [this.passwordAsyncValidator]],
       rol: ['', [Validators.required]],
       activo: [true]
     });
@@ -88,9 +82,10 @@ export class UsuarioComponent {
     if (this.modalInstance) {
       this.modalInstance.hide();
     }
+    this.limpiarFormulario();
   }
 
-  openModal(modo: string) {
+  openModal(modo: string) {    
     this.titleModal = modo === 'C' ? 'Crear Usuario' : 'Editar Usuario';
     this.titleBoton = modo === 'C' ? 'Guardar Usuario' : 'Actualizar Usuario';
     this.modoFormulario = modo;
@@ -103,22 +98,24 @@ export class UsuarioComponent {
   }
 
   abrirNuevoUsuario() {
-    this.usuarioSelected = new Usuario();
-    this.limpiarFormulario();
-    // Dejamos el formulario en blanco
+    this.usuarioSelected = null;
     this.openModal('C');
   }
 
   abrirEditarUsuario(usuario: Usuario) {
-    this.limpiarFormulario();
     this.usuarioSelected = usuario;
     this.openModal('E');
   }
 
+  /**
+   * Funcion que permite guardar/actualizar un usuario.
+   */
   guardarUsuario() {
+    console.log(this.form.invalid);
+    console.log(this.form);
     if (this.modoFormulario === 'C') {
       this.form.get('activo')?.setValue(true);
-    }
+    } 
     if (this.form.invalid) {
       // Manejar el formulario inválido
       Swal.fire('Error', 'Por favor, corrige los errores en el formulario.', 'error');
@@ -145,13 +142,35 @@ export class UsuarioComponent {
       });
     } else {
       // Modo Edición
+      const usuarioActualizado: Usuario = this.form.getRawValue();
+      usuarioActualizado.id = this.usuarioSelected.id;   
+      this.usuarioService.actualizarUsuario(usuarioActualizado).subscribe({
+        next: (data) => {
+          console.log(data);
+          if (data.status === 200) {
+            Swal.fire('Éxito', data.mensaje, 'success');
+            this.closeModal();
+            this.listarUsuarios();
+          } else {
+            Swal.fire('Error', data.mensaje, 'error');
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar usuario', error);
+          Swal.fire('Error', error.error.message, 'error');
+        }
+      });
     }
   }
 
-limpiarFormulario() {
-  this.form.reset();
-  this.form.markAsPristine();
-  this.form.markAsUntouched();
-}
-
+  limpiarFormulario() {
+    this.form.reset({
+      username: this.usuarioSelected ? this.usuarioSelected.username : '',
+      password: this.usuarioSelected ? this.usuarioSelected.password : '',
+      rol: this.usuarioSelected ? this.usuarioSelected.rol : '',
+      activo: this.usuarioSelected ? this.usuarioSelected.activo : false
+    });
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
+  }
 }

@@ -23,7 +23,7 @@ export class UsuarioService {
   }
 
   actualizarUsuario(usuario: Usuario): Observable<RespuestaRs> {
-    return this.backendService.put(this.urlBase, this.endpoint, 'actualizar', usuario);
+    return this.backendService.post(this.urlBase, this.endpoint, 'actualizar', usuario);
   } 
 
 
